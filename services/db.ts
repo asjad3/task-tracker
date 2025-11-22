@@ -14,6 +14,16 @@ let supabase: SupabaseClient | null = null;
 // --- Configuration Management ---
 
 export const getSupabaseConfig = (): SupabaseConfig | null => {
+  // 1. Check Environment Variables (Deployment Configuration)
+  // We check both process.env and standard Vite prefixes for maximum compatibility
+  const envUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL;
+  const envKey = process.env.SUPABASE_KEY || process.env.VITE_SUPABASE_KEY || process.env.REACT_APP_SUPABASE_KEY;
+
+  if (envUrl && envKey) {
+    return { url: envUrl, key: envKey };
+  }
+
+  // 2. Fallback to LocalStorage (Manual Entry)
   const stored = localStorage.getItem(CONFIG_KEY);
   return stored ? JSON.parse(stored) : null;
 };
@@ -61,11 +71,6 @@ export const db = {
         throw error;
       }
       
-      // Map snake_case from DB to camelCase if necessary, 
-      // but since we are using JSONB for subtasks and matching names mostly, 
-      // we just need to ensure field names match. 
-      // If we created the table with matching names, it's automatic.
-      // Let's map specifically to be safe.
       return data.map((row: any) => ({
         id: row.id,
         title: row.title,
@@ -73,7 +78,7 @@ export const db = {
         description: row.description,
         type: row.type,
         status: row.status,
-        dueDate: row.due_date, // DB uses snake_case usually
+        dueDate: row.due_date,
         priority: row.priority,
         subtasks: row.subtasks || [],
         createdAt: row.created_at
