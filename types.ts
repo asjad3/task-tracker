@@ -36,10 +36,3 @@ export interface Task {
   subtasks: SubTask[];
   createdAt: string;
 }
-
-export interface AIAnalysisResult {
-  subtasks: string[];
-  estimatedTime: string;
-  difficultyRating: string; // Low, Medium, High
-  summary: string;
-}

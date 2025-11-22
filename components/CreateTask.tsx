@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { TaskType, Priority, SubTask, AIAnalysisResult } from '../types';
-import { analyzeTaskScope } from '../services/geminiService';
-import { Sparkles, ArrowLeft, Loader2, Plus, X } from 'lucide-react';
+import { TaskType, Priority, SubTask } from '../types';
+import { ArrowLeft, Plus, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface CreateTaskProps {
@@ -17,28 +16,6 @@ export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
   const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
   const [dueDate, setDueDate] = useState('');
   const [subtasks, setSubtasks] = useState<SubTask[]>([]);
-  
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiSuggestion, setAiSuggestion] = useState<AIAnalysisResult | null>(null);
-
-  const handleAnalyze = async () => {
-    if (!title) return;
-    setIsAnalyzing(true);
-    const result = await analyzeTaskScope(title, description);
-    if (result) {
-        setAiSuggestion(result);
-        if (subtasks.length === 0) {
-            const newSubtasks = result.subtasks.map(st => ({
-                id: uuidv4(),
-                title: st,
-                isCompleted: false
-            }));
-            setSubtasks(newSubtasks);
-        }
-        if (result.difficultyRating === 'High') setPriority(Priority.HIGH);
-    }
-    setIsAnalyzing(false);
-  };
 
   const addSubtask = (title: string) => {
     setSubtasks([...subtasks, { id: uuidv4(), title, isCompleted: false }]);
@@ -49,7 +26,7 @@ export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
     onSave({
       title,
       course,
-      description: aiSuggestion?.summary || description,
+      description,
       type,
       priority,
       dueDate,
@@ -102,18 +79,7 @@ export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
           </div>
 
           <div className="space-y-4">
-             <div className="flex justify-between items-end">
-                <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider">Description & Scope</label>
-                <button 
-                    type="button"
-                    onClick={handleAnalyze}
-                    disabled={isAnalyzing || !title}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-900 text-white rounded-full text-xs font-medium hover:bg-black disabled:opacity-50 transition-all shadow-lg shadow-primary-900/20"
-                >
-                    {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                    Generate Plan
-                </button>
-             </div>
+             <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider">Description & Scope</label>
              <textarea 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -218,26 +184,6 @@ export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
                     </div>
                 </div>
             </div>
-
-            {aiSuggestion && (
-                <div className="bg-gradient-to-b from-primary-900 to-primary-800 rounded-3xl p-6 text-white animate-fade-in shadow-xl shadow-primary-900/20">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="w-4 h-4 text-primary-200" />
-                        <h3 className="font-display font-bold">AI Analysis</h3>
-                    </div>
-                    <div className="space-y-4 text-sm">
-                        <div className="flex justify-between border-b border-white/10 pb-2">
-                            <span className="text-white/60">Time Est.</span>
-                            <span className="font-medium">{aiSuggestion.estimatedTime}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/10 pb-2">
-                            <span className="text-white/60">Difficulty</span>
-                            <span className="font-medium">{aiSuggestion.difficultyRating}</span>
-                        </div>
-                        <p className="text-white/80 italic leading-relaxed">"{aiSuggestion.summary}"</p>
-                    </div>
-                </div>
-            )}
         </div>
       </div>
     </div>
