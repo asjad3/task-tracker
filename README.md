@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Task Tracker
 
-# Run and deploy your AI Studio app
+A high-performance, aesthetic academic planner for logging university quizzes, assignments, and deadlines.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1zGOJq2RYEw9sS1obpAc4rqh03tlTqNpl
+- Track assignments, quizzes, projects, exams, and reading tasks
+- Organize tasks by course and priority
+- Monitor task completion with visual dashboard
+- Optional cloud sync with Supabase
+- Local storage fallback
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/asjad3/task-tracker)
+
+Or manually:
+1. Push your code to a Git repository
+2. Import the project in Vercel
+3. Deploy!
