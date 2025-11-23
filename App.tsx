@@ -125,7 +125,7 @@ const App: React.FC = () => {
     }
 
     if (currentView === 'dashboard') {
-      return <Dashboard tasks={tasks} onStatusChange={handleStatusChange} onDelete={handleDelete} onNewTask={() => setCurrentView('add')} />;
+      return <Dashboard tasks={tasks} onStatusChange={handleStatusChange} onDelete={handleDelete} onNewTask={() => setCurrentView('add')} onViewAllTasks={() => setCurrentView('tasks')} />;
     }
     if (currentView === 'add') {
       return <CreateTask onSave={handleSaveTask} onCancel={() => setCurrentView('dashboard')} />;
