@@ -3,13 +3,20 @@ import { supabase } from './auth';
 
 // --- Data Operations ---
 
+// Helper function to get current authenticated user
+const getCurrentUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
+  return user;
+};
+
 export const db = {
   async getTasks(): Promise<Task[]> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    const user = await getCurrentUser();
 
     const { data, error } = await supabase
       .from('tasks')
@@ -37,11 +44,7 @@ export const db = {
   },
 
   async addTask(task: Task): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    const user = await getCurrentUser();
 
     const { error } = await supabase
       .from('tasks')
@@ -63,11 +66,7 @@ export const db = {
   },
 
   async updateTask(task: Task): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    const user = await getCurrentUser();
 
     const { error } = await supabase
       .from('tasks')
@@ -88,11 +87,7 @@ export const db = {
   },
 
   async deleteTask(id: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    const user = await getCurrentUser();
 
     const { error } = await supabase
       .from('tasks')

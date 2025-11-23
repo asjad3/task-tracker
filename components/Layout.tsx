@@ -24,6 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
         onSignOut();
       } catch (error) {
         console.error('Error signing out:', error);
+        alert('Failed to sign out. Please try again.');
       }
     }
   };

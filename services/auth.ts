@@ -3,10 +3,13 @@ import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Create a dummy client if env vars are not set (will be caught by EnvCheck)
-export const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) 
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : createClient('https://placeholder.supabase.co', 'placeholder-key');
+// Create Supabase client
+// Note: If environment variables are not set, EnvCheck component will prevent the app from loading
+// However, we still need to create a client for the module to load without errors
+export const supabase = createClient(
+  SUPABASE_URL || 'https://placeholder.supabase.co',
+  SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTI4MDAsImV4cCI6MTk2MDc2ODgwMH0.placeholder'
+);
 
 export interface AuthState {
   user: User | null;
