@@ -4,7 +4,7 @@ import { TaskCard } from './TaskCard';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Sparkles, ArrowUpRight } from 'lucide-react';
 
-const motivationalQuotes = [
+const MOTIVATIONAL_QUOTES = [
   "Focus on the step in front of you, not the whole staircase.",
   "Success is the sum of small efforts repeated day in and day out.",
   "The expert in anything was once a beginner.",
@@ -13,7 +13,9 @@ const motivationalQuotes = [
   "Don't stop when you're tired. Stop when you're done.",
   "Wake up with determination. Go to bed with satisfaction.",
   "Do something today that your future self will thank you for.",
-];
+] as const;
+
+const QUOTE_ROTATION_INTERVAL_MS = 10000; // 10 seconds
 
 interface DashboardProps {
   tasks: Task[];
@@ -29,11 +31,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
   const pendingTasks = tasks.filter(t => t.status !== TaskStatus.COMPLETED);
   const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
 
-  // Rotate quotes every 10 seconds
+  // Rotate quotes automatically
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentQuoteIndex((prev) => (prev + 1) % motivationalQuotes.length);
-    }, 10000);
+      setCurrentQuoteIndex((prev) => (prev + 1) % MOTIVATIONAL_QUOTES.length);
+    }, QUOTE_ROTATION_INTERVAL_MS);
     
     return () => clearInterval(interval);
   }, []);
@@ -126,10 +128,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         {/* Motivation Card */}
         <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden">
              <p className="font-display text-2xl font-bold text-primary-800 leading-tight transition-opacity duration-500">
-               "{motivationalQuotes[currentQuoteIndex]}"
+               "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
              </p>
              <div className="flex gap-1.5 mt-4 justify-center">
-               {motivationalQuotes.map((_, index) => (
+               {MOTIVATIONAL_QUOTES.map((_, index) => (
                  <button
                    key={index}
                    onClick={() => setCurrentQuoteIndex(index)}
