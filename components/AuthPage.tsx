@@ -125,7 +125,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2 animate-slide-in-up">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-red-800">{error}</p>
               </div>
@@ -133,7 +133,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-start gap-2">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-start gap-2 animate-slide-in-up">
                 <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-green-800">{successMessage}</p>
               </div>
@@ -168,7 +168,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             </div>
 
             {isSignUp && (
-              <div>
+              <div className="animate-slide-in-up">
                 <label className="block text-sm font-semibold text-primary-700 mb-2">
                   Confirm Password
                 </label>
