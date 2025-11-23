@@ -11,7 +11,7 @@ import { authService, supabase } from './services/auth';
 import { Session } from '@supabase/supabase-js';
 
 // Lazy load CreateTask component since it's only needed when creating a task
-const CreateTask = lazy(() => import('./components/CreateTask').then(module => ({ default: module.CreateTask })));
+const CreateTask = lazy(() => import('./components/CreateTask'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');

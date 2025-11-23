@@ -109,7 +109,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
                      fill="none" 
                      stroke="#18181b" 
                      strokeWidth="20"
-                     strokeDasharray={`${completionRate * 3.14} ${(100 - completionRate) * 3.14}`}
+                     strokeDasharray={`${completionRate * 3.14159} ${(100 - completionRate) * 3.14159}`}
                      strokeLinecap="round"
                    />
                  </svg>
