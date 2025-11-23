@@ -36,7 +36,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
-      <button onClick={onCancel} className="flex items-center gap-2 text-primary-400 hover:text-primary-900 mb-8 transition-colors">
+      <button onClick={onCancel} className="flex items-center gap-2 text-primary-400 hover:text-primary-900 mb-8 transition-colors hover:-translate-x-1">
         <ArrowLeft className="w-4 h-4" />
         <span className="text-sm font-medium">Back to Dashboard</span>
       </button>
@@ -134,7 +134,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
              </button>
              <button 
                 type="submit"
-                className="flex-[2] py-4 rounded-2xl bg-primary-900 text-white font-semibold hover:bg-black transition-all shadow-xl shadow-primary-900/20 active:scale-[0.98]"
+                className="flex-[2] py-4 rounded-2xl bg-primary-900 text-white font-semibold hover:bg-black hover:scale-[1.02] transition-all shadow-xl shadow-primary-900/20 active:scale-[0.98]"
              >
                 Save Task
              </button>
@@ -143,7 +143,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
 
         {/* Sidebar Settings */}
         <div className="space-y-8">
-            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4">
+            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
                 <h3 className="font-display font-bold text-lg">Settings</h3>
                 <div>
                     <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider mb-2">Type</label>

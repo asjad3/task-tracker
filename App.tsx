@@ -29,8 +29,10 @@ const App: React.FC = () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
+        // Stop showing auth loading screen immediately after session check
+        setIsAuthChecking(false);
         
-        // Fetch tasks immediately if session exists (parallel optimization)
+        // Fetch tasks in background if session exists (non-blocking)
         if (currentSession) {
           setIsLoading(true);
           try {
@@ -44,7 +46,6 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error('Error checking session:', error);
-      } finally {
         setIsAuthChecking(false);
       }
     };
@@ -145,8 +146,11 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (isLoading && tasks.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center h-64 animate-fade-in">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin mx-auto mb-3"></div>
+                  <p className="text-sm text-primary-400">Loading your tasks...</p>
+                </div>
             </div>
         );
     }
@@ -168,7 +172,7 @@ const App: React.FC = () => {
     if (currentView === 'tasks') {
       return (
         <div className="space-y-8 animate-fade-in">
-           <div className="flex items-center justify-between">
+           <div className="flex items-center justify-between animate-slide-in-left">
              <h2 className="text-4xl font-display font-bold text-primary-900">All Tasks</h2>
              <button 
                onClick={() => setCurrentView('add')}
@@ -206,9 +210,9 @@ const App: React.FC = () => {
   if (isAuthChecking) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center animate-fade-in">
           <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-primary-500">Loading...</p>
+          <p className="text-primary-500 animate-pulse">Loading...</p>
         </div>
       </div>
     );

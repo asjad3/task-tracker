@@ -50,7 +50,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
 
   return (
     <div className="space-y-12 animate-fade-in">
-      <header className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-primary-100 pb-8">
+      <header className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-primary-100 pb-8 animate-slide-in-left">
         <div>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-900 tracking-tight mb-2">
               Study<br/>Dashboard
@@ -75,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         {/* Main Call to Action */}
         <div 
             onClick={onNewTask}
-            className="col-span-1 md:col-span-4 bg-primary-900 rounded-3xl p-8 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform duration-300 shadow-xl shadow-primary-900/10"
+            className="col-span-1 md:col-span-4 bg-primary-900 rounded-3xl p-8 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform duration-300 shadow-xl shadow-primary-900/10 animate-slide-in-left"
         >
             <div className="flex justify-between items-start">
                 <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:bg-white/20 transition-colors">
@@ -90,7 +90,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
 
         {/* Completion Chart */}
-        <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-primary-100 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-primary-100 flex flex-col items-center justify-center relative overflow-hidden animate-scale-in" style={{ animationDelay: '0.1s' }}>
              <h3 className="absolute top-6 left-6 font-medium text-sm text-primary-400">Overview</h3>
              <div className="h-32 w-32 relative">
                  <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
@@ -121,7 +121,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
 
         {/* Motivation Card */}
-        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden">
+        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
              <p className="font-display text-2xl font-bold text-primary-800 leading-tight transition-opacity duration-500">
                "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
              </p>
@@ -142,10 +142,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
         <div className="flex items-center justify-between">
             <h3 className="text-2xl font-display font-bold text-primary-900">Up Next</h3>
-            <button onClick={onViewAllTasks} className="text-sm text-primary-400 hover:text-primary-900 transition-colors">View all tasks →</button>
+            <button onClick={onViewAllTasks} className="text-sm text-primary-400 hover:text-primary-900 transition-all hover:translate-x-1">View all tasks →</button>
         </div>
         
         {urgentTasks.length === 0 ? (

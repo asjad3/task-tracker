@@ -79,10 +79,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fade-in">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 bg-primary-900 rounded-3xl items-center justify-center text-white font-display font-bold text-3xl mb-4 shadow-lg shadow-primary-900/20">
+          <div className="inline-flex w-16 h-16 bg-primary-900 rounded-3xl items-center justify-center text-white font-display font-bold text-3xl mb-4 shadow-lg shadow-primary-900/20 animate-bounce-in">
             U
           </div>
           <h1 className="text-4xl font-display font-bold text-primary-900 mb-2">UniTrack Pro</h1>
@@ -90,7 +90,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8">
+        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8 animate-scale-in" style={{ animationDelay: '0.2s' }}>
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => {
