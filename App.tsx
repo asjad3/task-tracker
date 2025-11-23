@@ -4,6 +4,7 @@ import { Dashboard } from './components/Dashboard';
 import { CreateTask } from './components/CreateTask';
 import { TaskCard } from './components/TaskCard';
 import { AuthPage } from './components/AuthPage';
+import { ConfirmModal } from './components/ConfirmModal';
 import { Task, TaskStatus } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from './services/db';
@@ -16,6 +17,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -103,16 +106,22 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
-        // Optimistic
-        setTasks(tasks.filter(t => t.id !== id));
-        try {
-            await db.deleteTask(id);
-        } catch (e) {
-            console.error("Failed to delete", e);
-        }
+  const handleDelete = (id: string) => {
+    setTaskToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!taskToDelete) return;
+    
+    // Optimistic
+    setTasks(tasks.filter(t => t.id !== taskToDelete));
+    try {
+        await db.deleteTask(taskToDelete);
+    } catch (e) {
+        console.error("Failed to delete", e);
     }
+    setTaskToDelete(null);
   };
 
   const renderContent = () => {
@@ -185,17 +194,33 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout 
-      currentView={currentView} 
-      setCurrentView={setCurrentView}
-      userEmail={session.user.email || ''}
-      onSignOut={() => {
-        setSession(null);
-        setTasks([]);
-      }}
-    >
-      {renderContent()}
-    </Layout>
+    <>
+      <Layout 
+        currentView={currentView} 
+        setCurrentView={setCurrentView}
+        userEmail={session.user.email || ''}
+        onSignOut={() => {
+          setSession(null);
+          setTasks([]);
+        }}
+      >
+        {renderContent()}
+      </Layout>
+      
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setTaskToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+    </>
   );
 };
 
