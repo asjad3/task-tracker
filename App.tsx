@@ -3,165 +3,62 @@ import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { CreateTask } from './components/CreateTask';
 import { TaskCard } from './components/TaskCard';
+import { AuthPage } from './components/AuthPage';
 import { Task, TaskStatus } from './types';
 import { v4 as uuidv4 } from 'uuid';
-import { X, Copy, CheckCircle2, Database, AlertTriangle } from 'lucide-react';
-import { db, getSupabaseConfig, saveSupabaseConfig, clearSupabaseConfig, initSupabase, isCloudEnabled } from './services/db';
-
-// Settings Modal Component
-const SettingsModal = ({ isOpen, onClose, onConfigUpdate }: { isOpen: boolean, onClose: () => void, onConfigUpdate: () => void }) => {
-  const [url, setUrl] = useState('');
-  const [key, setKey] = useState('');
-  const [currentConfig, setCurrentConfig] = useState(getSupabaseConfig());
-  
-  useEffect(() => {
-    const conf = getSupabaseConfig();
-    setCurrentConfig(conf);
-    if (conf) {
-        setUrl(conf.url);
-        setKey(conf.key);
-    }
-  }, [isOpen]);
-
-  const handleSave = () => {
-    if (url && key) {
-        saveSupabaseConfig(url, key);
-        onConfigUpdate();
-        onClose();
-    }
-  };
-
-  const handleDisconnect = () => {
-    clearSupabaseConfig();
-    setUrl('');
-    setKey('');
-    onConfigUpdate();
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl animate-fade-in overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-display font-bold text-primary-900">Settings</h2>
-                <button onClick={onClose}><X className="w-6 h-6 text-primary-400 hover:text-primary-900"/></button>
-            </div>
-
-            <div className="space-y-6">
-                {/* Connection Status */}
-                <div className={`p-4 rounded-2xl border ${currentConfig ? 'bg-green-50 border-green-200' : 'bg-primary-50 border-primary-100'}`}>
-                    <div className="flex items-center gap-3">
-                        {currentConfig ? <CheckCircle2 className="text-green-600 w-5 h-5" /> : <Database className="text-primary-400 w-5 h-5" />}
-                        <div>
-                            <h3 className={`font-bold text-sm ${currentConfig ? 'text-green-800' : 'text-primary-900'}`}>
-                                {currentConfig ? 'Cloud Sync Active' : 'Local Storage Mode'}
-                            </h3>
-                            <p className="text-xs text-primary-500 mt-1">
-                                {currentConfig ? 'Your tasks are syncing to Supabase.' : 'Tasks are saved only on this device.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Configuration Form */}
-                <div className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-primary-400">Supabase Connection</h3>
-                    <div>
-                        <label className="block text-xs font-semibold text-primary-500 mb-2">Project URL</label>
-                        <input 
-                            type="text" 
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            placeholder="https://xyz.supabase.co"
-                            className="w-full bg-primary-50 border border-primary-100 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary-900 outline-none transition-colors"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-semibold text-primary-500 mb-2">Anon Key</label>
-                        <input 
-                            type="password" 
-                            value={key}
-                            onChange={(e) => setKey(e.target.value)}
-                            placeholder="eyJhbGciOiJIUzI1NiIsInR..."
-                            className="w-full bg-primary-50 border border-primary-100 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary-900 outline-none transition-colors"
-                        />
-                    </div>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
-                    {currentConfig && (
-                        <button 
-                            onClick={handleDisconnect}
-                            className="flex-1 py-3 border border-red-100 text-red-600 hover:bg-red-50 rounded-xl font-medium transition-colors"
-                        >
-                            Disconnect
-                        </button>
-                    )}
-                    <button 
-                        onClick={handleSave}
-                        className="flex-[2] py-3 bg-primary-900 text-white hover:bg-black rounded-xl font-medium shadow-lg shadow-primary-900/20 transition-all"
-                    >
-                        {currentConfig ? 'Update Config' : 'Connect Cloud'}
-                    </button>
-                </div>
-
-                {/* Setup Instructions */}
-                {!currentConfig && (
-                    <div className="pt-6 border-t border-primary-50 space-y-3">
-                        <div className="flex items-center gap-2 text-amber-600">
-                            <AlertTriangle className="w-4 h-4" />
-                            <span className="text-xs font-bold uppercase">Required Database Setup</span>
-                        </div>
-                        <p className="text-xs text-primary-500 leading-relaxed">
-                            To use cloud sync, create a table named <code className="bg-primary-100 px-1 rounded">tasks</code> in your Supabase SQL Editor:
-                        </p>
-                        <div className="bg-primary-900 text-primary-200 p-4 rounded-xl text-[10px] font-mono overflow-x-auto">
-<pre>{`create table tasks (
-  id uuid primary key,
-  title text,
-  course text,
-  description text,
-  type text,
-  status text,
-  priority text,
-  due_date text,
-  subtasks jsonb,
-  created_at text
-);`}</pre>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-    </div>
-  );
-};
+import { db } from './services/db';
+import { authService, supabase } from './services/auth';
+import { Session } from '@supabase/supabase-js';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        setSession(currentSession);
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setIsAuthChecking(false);
+      }
+    };
+
+    initAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchTasks = async () => {
+    if (!session) return;
+    
     setIsLoading(true);
     try {
         const fetched = await db.getTasks();
         setTasks(fetched);
     } catch (error) {
         console.error("Failed to fetch tasks", error);
-        // Optional: Show error toast
     } finally {
         setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (session) {
+      fetchTasks();
+    }
+  }, [session]);
 
   const handleSaveTask = async (taskData: Partial<Task>) => {
     const newTask: Task = {
@@ -270,24 +167,35 @@ const App: React.FC = () => {
     return <div>Page not found</div>;
   };
 
+  // Show loading state while checking auth
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-primary-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!session) {
+    return <AuthPage onAuthSuccess={() => {}} />;
+  }
+
   return (
-    <>
-        <Layout 
-            currentView={currentView} 
-            setCurrentView={setCurrentView} 
-            onOpenSettings={() => setIsSettingsOpen(true)}
-        >
-            {renderContent()}
-        </Layout>
-        <SettingsModal 
-            isOpen={isSettingsOpen} 
-            onClose={() => setIsSettingsOpen(false)} 
-            onConfigUpdate={() => {
-                initSupabase();
-                fetchTasks();
-            }}
-        />
-    </>
+    <Layout 
+      currentView={currentView} 
+      setCurrentView={setCurrentView}
+      userEmail={session.user.email || ''}
+      onSignOut={() => {
+        setSession(null);
+        setTasks([]);
+      }}
+    >
+      {renderContent()}
+    </Layout>
   );
 };
 
