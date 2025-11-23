@@ -90,7 +90,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
 
         {/* Completion Chart */}
-        <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-primary-100 flex flex-col items-center justify-center relative overflow-hidden animate-scale-in" style={{ animationDelay: '0.1s' }}>
+        <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-primary-100 flex flex-col items-center justify-center relative overflow-hidden animate-scale-in animation-delay-100">
              <h3 className="absolute top-6 left-6 font-medium text-sm text-primary-400">Overview</h3>
              <div className="h-32 w-32 relative">
                  <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
@@ -121,7 +121,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
 
         {/* Motivation Card */}
-        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden animate-slide-in-right animation-delay-200">
              <p className="font-display text-2xl font-bold text-primary-800 leading-tight transition-opacity duration-500">
                "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
              </p>
@@ -142,7 +142,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
       </div>
 
-      <div className="space-y-6 animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+      <div className="space-y-6 animate-slide-in-up animation-delay-300">
         <div className="flex items-center justify-between">
             <h3 className="text-2xl font-display font-bold text-primary-900">Up Next</h3>
             <button onClick={onViewAllTasks} className="text-sm text-primary-400 hover:text-primary-900 transition-all hover:translate-x-1">View all tasks →</button>

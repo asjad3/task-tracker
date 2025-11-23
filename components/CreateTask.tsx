@@ -143,7 +143,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
 
         {/* Sidebar Settings */}
         <div className="space-y-8">
-            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4 animate-slide-in-right animation-delay-200">
                 <h3 className="font-display font-bold text-lg">Settings</h3>
                 <div>
                     <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider mb-2">Type</label>

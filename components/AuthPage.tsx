@@ -90,7 +90,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8 animate-scale-in animation-delay-200">
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => {
