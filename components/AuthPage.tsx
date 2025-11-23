@@ -51,7 +51,26 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         onAuthSuccess();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      // Provide user-friendly error messages
+      let errorMessage = 'An error occurred. Please try again.';
+      
+      if (err instanceof Error) {
+        const msg = err.message.toLowerCase();
+        if (msg.includes('invalid') || msg.includes('credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (msg.includes('network') || msg.includes('fetch')) {
+          errorMessage = 'Unable to connect. Please check your internet connection.';
+        } else if (msg.includes('already registered') || msg.includes('already exists')) {
+          errorMessage = 'This email is already registered. Please sign in instead.';
+        } else if (msg.includes('email')) {
+          errorMessage = 'Please enter a valid email address.';
+        } else if (msg.includes('weak password')) {
+          errorMessage = 'Password is too weak. Please use a stronger password.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -225,13 +244,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
               )}
             </p>
           </div>
-        </div>
-
-        {/* Setup Instructions */}
-        <div className="mt-6 bg-white/80 backdrop-blur rounded-2xl border border-primary-100 p-4">
-          <p className="text-xs text-primary-600 text-center">
-            <strong>Note:</strong> Requires Supabase backend with authentication enabled and tasks table configured.
-          </p>
         </div>
       </div>
     </div>

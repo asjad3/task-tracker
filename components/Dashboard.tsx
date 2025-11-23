@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, Priority } from '../types';
 import { TaskCard } from './TaskCard';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Sparkles, ArrowUpRight } from 'lucide-react';
+
+const MOTIVATIONAL_QUOTES = [
+  "Focus on the step in front of you, not the whole staircase.",
+  "Success is the sum of small efforts repeated day in and day out.",
+  "The expert in anything was once a beginner.",
+  "Your limitation—it's only your imagination.",
+  "Great things never come from comfort zones.",
+  "Don't stop when you're tired. Stop when you're done.",
+  "Wake up with determination. Go to bed with satisfaction.",
+  "Do something today that your future self will thank you for.",
+] as const;
+
+const QUOTE_ROTATION_INTERVAL_MS = 10000; // 10 seconds
 
 interface DashboardProps {
   tasks: Task[];
   onStatusChange: (id: string, status: TaskStatus) => void;
   onDelete: (id: string) => void;
   onNewTask: () => void;
+  onViewAllTasks: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onDelete, onNewTask }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onDelete, onNewTask, onViewAllTasks }) => {
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  
   const pendingTasks = tasks.filter(t => t.status !== TaskStatus.COMPLETED);
   const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
+
+  // Rotate quotes automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuoteIndex((prev) => (prev + 1) % MOTIVATIONAL_QUOTES.length);
+    }, QUOTE_ROTATION_INTERVAL_MS);
+    
+    return () => clearInterval(interval);
+  }, []);
   
   // Sort by urgency
   const urgentTasks = [...pendingTasks].sort((a, b) => 
     new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  ).slice(0, 3);
+  );
 
   const data = [
     { name: 'Pending', value: pendingTasks.length, color: '#18181b' }, // Zinc-900
@@ -101,17 +126,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         </div>
 
         {/* Motivation Card */}
-        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center">
-             <p className="font-display text-2xl font-bold text-primary-800 leading-tight">
-               "Focus on the step in front of you, not the whole staircase."
+        <div className="col-span-1 md:col-span-4 bg-primary-50 rounded-3xl p-8 border border-primary-100 flex flex-col justify-center relative overflow-hidden">
+             <p className="font-display text-2xl font-bold text-primary-800 leading-tight transition-opacity duration-500">
+               "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
              </p>
+             <div className="flex gap-1.5 mt-4 justify-center">
+               {MOTIVATIONAL_QUOTES.map((_, index) => (
+                 <button
+                   key={index}
+                   onClick={() => setCurrentQuoteIndex(index)}
+                   className={`w-2 h-2 rounded-full transition-all ${
+                     index === currentQuoteIndex 
+                       ? 'bg-primary-800 w-6' 
+                       : 'bg-primary-300 hover:bg-primary-500'
+                   }`}
+                   aria-label={`Go to quote ${index + 1}`}
+                 />
+               ))}
+             </div>
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
             <h3 className="text-2xl font-display font-bold text-primary-900">Up Next</h3>
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth'})} className="text-sm text-primary-400 hover:text-primary-900">View all</button>
+            <button onClick={onViewAllTasks} className="text-sm text-primary-400 hover:text-primary-900 transition-colors">View all tasks →</button>
         </div>
         
         {urgentTasks.length === 0 ? (
