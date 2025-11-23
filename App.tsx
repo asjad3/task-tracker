@@ -24,6 +24,8 @@ const App: React.FC = () => {
 
   // Check for existing session on mount
   useEffect(() => {
+    let isInitialLoad = true;
+
     const initAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -52,6 +54,12 @@ const App: React.FC = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      // Skip the initial auth state change event to prevent duplicate fetch
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        return;
+      }
+
       setSession(session);
       
       // Fetch tasks when user signs in
