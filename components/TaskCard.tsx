@@ -21,7 +21,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onDele
   const isUrgent = daysUntil() === 'Overdue' || daysUntil() === 'Today';
 
   return (
-    <div className="group bg-white rounded-3xl p-6 border border-primary-100 hover:border-primary-300 transition-all duration-300 hover:shadow-xl hover:shadow-primary-900/5 flex flex-col h-full">
+    <div className="group bg-white rounded-3xl p-6 border border-primary-100 hover:border-primary-300 transition-all duration-300 hover:shadow-xl hover:shadow-primary-900/5 hover:-translate-y-1 flex flex-col h-full animate-fade-in">
       
       <div className="flex justify-between items-start mb-4">
         <div className="flex flex-wrap gap-2">
