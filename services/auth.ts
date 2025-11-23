@@ -1,15 +1,12 @@
 import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error(
-    'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
-  );
-}
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create a dummy client if env vars are not set (will be caught by EnvCheck)
+export const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) 
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : createClient('https://placeholder.supabase.co', 'placeholder-key');
 
 export interface AuthState {
   user: User | null;
