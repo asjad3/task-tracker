@@ -45,16 +45,15 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
         </div>
 
         <nav className="flex-1 px-2 lg:px-4 space-y-2 mt-4">
-          {navItems.map((item, index) => (
+          {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setCurrentView(item.id)}
-              className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 rounded-2xl transition-all duration-300 ease-out group animate-slide-in-left ${
+              className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 rounded-2xl transition-all duration-300 ease-out group ${
                 currentView === item.id
                   ? 'bg-primary-900 text-white shadow-lg shadow-primary-900/10'
                   : 'text-primary-400 hover:bg-primary-50 hover:text-primary-900'
               }`}
-              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <item.icon className={`w-5 h-5 ${currentView === item.id ? 'text-white' : ''}`} />
               <span className="hidden lg:block font-medium text-sm">{item.label}</span>
@@ -99,7 +98,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
       </main>
 
       {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-6 left-4 right-4 bg-primary-900 text-white rounded-full shadow-2xl shadow-primary-900/20 p-2 flex justify-around items-center z-50 backdrop-blur-md animate-slide-in-up">
+      <div className="md:hidden fixed bottom-6 left-4 right-4 bg-primary-900 text-white rounded-full shadow-2xl shadow-primary-900/20 p-2 flex justify-around items-center z-50 backdrop-blur-md">
         {navItems.map((item) => (
           <button
             key={item.id}

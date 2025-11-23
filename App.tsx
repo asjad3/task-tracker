@@ -146,7 +146,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (isLoading && tasks.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 animate-fade-in">
+            <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin mx-auto mb-3"></div>
                   <p className="text-sm text-primary-400">Loading your tasks...</p>
@@ -171,8 +171,8 @@ const App: React.FC = () => {
     }
     if (currentView === 'tasks') {
       return (
-        <div className="space-y-8 animate-fade-in">
-           <div className="flex items-center justify-between animate-slide-in-left">
+        <div className="space-y-8">
+           <div className="flex items-center justify-between">
              <h2 className="text-4xl font-display font-bold text-primary-900">All Tasks</h2>
              <button 
                onClick={() => setCurrentView('add')}
@@ -190,18 +190,13 @@ const App: React.FC = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                {tasks
                  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-                 .map((task, index) => (
-                   <div 
-                     key={task.id} 
-                     className="animate-fade-in"
-                     style={{ animationDelay: `${index * 50}ms` }}
-                   >
-                     <TaskCard 
-                       task={task} 
-                       onStatusChange={handleStatusChange} 
-                       onDelete={handleDelete}
-                     />
-                   </div>
+                 .map((task) => (
+                   <TaskCard 
+                     key={task.id}
+                     task={task} 
+                     onStatusChange={handleStatusChange} 
+                     onDelete={handleDelete}
+                   />
                  ))}
              </div>
            )}
@@ -215,7 +210,7 @@ const App: React.FC = () => {
   if (isAuthChecking) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center animate-fade-in">
+        <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-primary-500 animate-pulse">Loading...</p>
         </div>
