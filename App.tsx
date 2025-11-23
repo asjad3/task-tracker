@@ -29,8 +29,6 @@ const App: React.FC = () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
-        // Stop showing auth loading screen immediately after session check
-        setIsAuthChecking(false);
         
         // Fetch tasks in background if session exists (non-blocking)
         if (currentSession) {
@@ -46,6 +44,8 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error('Error checking session:', error);
+      } finally {
+        // Stop showing auth loading screen after session check completes
         setIsAuthChecking(false);
       }
     };
