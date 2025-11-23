@@ -21,11 +21,10 @@ const App: React.FC = () => {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+  const isInitialAuthChange = React.useRef(true);
 
   // Check for existing session on mount
   useEffect(() => {
-    let isInitialLoad = true;
-
     const initAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -55,8 +54,8 @@ const App: React.FC = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       // Skip the initial auth state change event to prevent duplicate fetch
-      if (isInitialLoad) {
-        isInitialLoad = false;
+      if (isInitialAuthChange.current) {
+        isInitialAuthChange.current = false;
         return;
       }
 
