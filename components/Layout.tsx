@@ -1,22 +1,33 @@
 import React from 'react';
-import { LayoutGrid, Plus, List, Settings, Cloud } from 'lucide-react';
-import { isCloudEnabled } from '../services/db';
+import { LayoutGrid, Plus, List, LogOut, User } from 'lucide-react';
+import { authService } from '../services/auth';
 
 interface LayoutProps {
   children: React.ReactNode;
   currentView: string;
   setCurrentView: (view: string) => void;
-  onOpenSettings: () => void;
+  userEmail: string;
+  onSignOut: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView, onOpenSettings }) => {
-  const cloudActive = isCloudEnabled();
-  
+export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView, userEmail, onSignOut }) => {
   const navItems = [
     { id: 'dashboard', icon: LayoutGrid, label: 'Overview' },
     { id: 'tasks', icon: List, label: 'Tasks' },
     { id: 'add', icon: Plus, label: 'Create' },
   ];
+
+  const handleSignOut = async () => {
+    if (window.confirm('Are you sure you want to sign out?')) {
+      try {
+        await authService.signOut();
+        onSignOut();
+      } catch (error) {
+        console.error('Error signing out:', error);
+        alert('Failed to sign out. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-primary-900 font-sans flex">
@@ -47,16 +58,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
         </nav>
 
         <div className="p-4 border-t border-primary-50 space-y-2">
-          <div className="hidden lg:flex items-center gap-2 px-2 mb-2">
-             <div className={`w-2 h-2 rounded-full ${cloudActive ? 'bg-green-500' : 'bg-primary-300'}`}></div>
-             <span className="text-[10px] uppercase tracking-wider text-primary-400 font-semibold">
-                {cloudActive ? 'Cloud Active' : 'Local Mode'}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-2 mb-2 bg-primary-50 rounded-xl">
+             <User className="w-4 h-4 text-primary-600" />
+             <span className="text-[10px] text-primary-600 font-medium truncate flex-1">
+                {userEmail}
              </span>
           </div>
           
-          <button onClick={onOpenSettings} className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2 text-primary-400 hover:text-primary-900 rounded-xl hover:bg-primary-50 text-xs transition-colors">
-             <Settings className="w-4 h-4" />
-             <span className="hidden lg:block">Settings & Sync</span>
+          <button 
+            onClick={handleSignOut} 
+            className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2 text-primary-400 hover:text-red-600 rounded-xl hover:bg-red-50 text-xs transition-colors"
+          >
+             <LogOut className="w-4 h-4" />
+             <span className="hidden lg:block">Sign Out</span>
           </button>
         </div>
       </aside>
@@ -67,8 +81,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
             <div className="w-8 h-8 bg-primary-900 rounded-full flex items-center justify-center text-white font-display font-bold">U</div>
             <span className="font-display font-bold text-lg">UniTrack</span>
          </div>
-         <button onClick={onOpenSettings} className="p-2 text-primary-500">
-            <Settings className="w-5 h-5" />
+         <button onClick={handleSignOut} className="p-2 text-primary-500 hover:text-red-600">
+            <LogOut className="w-5 h-5" />
          </button>
       </div>
 
