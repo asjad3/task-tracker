@@ -34,11 +34,7 @@ body {
 }
 
 .animate-fade-in {
-  /* Only animate once - animation will not restart unless element is removed and re-added to DOM */
-  animation: fadeIn 0.4s ease-out;
-  /* Ensure element stays at final state */
-  opacity: 1;
-  transform: translateY(0);
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 @keyframes scaleIn {
@@ -53,9 +49,7 @@ body {
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
-  opacity: 1;
-  transform: scale(1);
+  animation: scaleIn 0.3s ease-out forwards;
 }
 
 @keyframes slideInLeft {
@@ -70,9 +64,7 @@ body {
 }
 
 .animate-slide-in-left {
-  animation: slideInLeft 0.4s ease-out;
-  opacity: 1;
-  transform: translateX(0);
+  animation: slideInLeft 0.4s ease-out forwards;
 }
 
 @keyframes slideInRight {
@@ -87,9 +79,7 @@ body {
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.4s ease-out;
-  opacity: 1;
-  transform: translateX(0);
+  animation: slideInRight 0.4s ease-out forwards;
 }
 
 @keyframes slideInUp {
@@ -104,9 +94,7 @@ body {
 }
 
 .animate-slide-in-up {
-  animation: slideInUp 0.4s ease-out;
-  opacity: 1;
-  transform: translateY(0);
+  animation: slideInUp 0.4s ease-out forwards;
 }
 
 @keyframes bounceIn {
@@ -127,9 +115,7 @@ body {
 }
 
 .animate-bounce-in {
-  animation: bounceIn 0.5s ease-out;
-  opacity: 1;
-  transform: scale(1);
+  animation: bounceIn 0.5s ease-out forwards;
 }
 
 @keyframes pulse {
