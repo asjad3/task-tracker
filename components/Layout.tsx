@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LayoutGrid, Plus, List, LogOut, User } from 'lucide-react';
 import { authService } from '../services/auth';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,21 +12,24 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView, userEmail, onSignOut }) => {
+  const [signOutModalOpen, setSignOutModalOpen] = useState(false);
+  
   const navItems = [
     { id: 'dashboard', icon: LayoutGrid, label: 'Overview' },
     { id: 'tasks', icon: List, label: 'Tasks' },
     { id: 'add', icon: Plus, label: 'Create' },
   ];
 
-  const handleSignOut = async () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
-      try {
-        await authService.signOut();
-        onSignOut();
-      } catch (error) {
-        console.error('Error signing out:', error);
-        alert('Failed to sign out. Please try again.');
-      }
+  const handleSignOutClick = () => {
+    setSignOutModalOpen(true);
+  };
+
+  const confirmSignOut = async () => {
+    try {
+      await authService.signOut();
+      onSignOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -66,7 +70,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
           </div>
           
           <button 
-            onClick={handleSignOut} 
+            onClick={handleSignOutClick} 
             className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2 text-primary-400 hover:text-red-600 rounded-xl hover:bg-red-50 text-xs transition-colors"
           >
              <LogOut className="w-4 h-4" />
@@ -81,7 +85,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
             <div className="w-8 h-8 bg-primary-900 rounded-full flex items-center justify-center text-white font-display font-bold">U</div>
             <span className="font-display font-bold text-lg">UniTrack</span>
          </div>
-         <button onClick={handleSignOut} className="p-2 text-primary-500 hover:text-red-600">
+         <button onClick={handleSignOutClick} className="p-2 text-primary-500 hover:text-red-600">
             <LogOut className="w-5 h-5" />
          </button>
       </div>
@@ -107,6 +111,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
           </button>
         ))}
       </div>
+      
+      <ConfirmModal
+        isOpen={signOutModalOpen}
+        onClose={() => setSignOutModalOpen(false)}
+        onConfirm={confirmSignOut}
+        title="Sign Out"
+        message="Are you sure you want to sign out? You'll need to sign in again to access your tasks."
+        confirmText="Sign Out"
+        cancelText="Cancel"
+        variant="warning"
+      />
     </div>
   );
 };

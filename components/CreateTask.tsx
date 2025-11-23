@@ -8,7 +8,7 @@ interface CreateTaskProps {
   onCancel: () => void;
 }
 
-export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
+const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState('');
   const [description, setDescription] = useState('');
@@ -189,3 +189,5 @@ export const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
     </div>
   );
 };
+
+export default CreateTask;

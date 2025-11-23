@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
-import { CreateTask } from './components/CreateTask';
 import { TaskCard } from './components/TaskCard';
 import { AuthPage } from './components/AuthPage';
+import { ConfirmModal } from './components/ConfirmModal';
 import { Task, TaskStatus } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from './services/db';
 import { authService, supabase } from './services/auth';
 import { Session } from '@supabase/supabase-js';
+
+// Lazy load CreateTask component since it's only needed when creating a task
+const CreateTask = lazy(() => import('./components/CreateTask'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -16,6 +19,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -23,6 +28,19 @@ const App: React.FC = () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
+        
+        // Fetch tasks immediately if session exists (parallel optimization)
+        if (currentSession) {
+          setIsLoading(true);
+          try {
+            const fetched = await db.getTasks();
+            setTasks(fetched);
+          } catch (error) {
+            console.error("Failed to fetch tasks", error);
+          } finally {
+            setIsLoading(false);
+          }
+        }
       } catch (error) {
         console.error('Error checking session:', error);
       } finally {
@@ -33,32 +51,28 @@ const App: React.FC = () => {
     initAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
+      
+      // Fetch tasks when user signs in
+      if (session) {
+        setIsLoading(true);
+        try {
+          const fetched = await db.getTasks();
+          setTasks(fetched);
+        } catch (error) {
+          console.error("Failed to fetch tasks", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        // Clear tasks when user signs out
+        setTasks([]);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const fetchTasks = async () => {
-    if (!session) return;
-    
-    setIsLoading(true);
-    try {
-        const fetched = await db.getTasks();
-        setTasks(fetched);
-    } catch (error) {
-        console.error("Failed to fetch tasks", error);
-    } finally {
-        setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (session) {
-      fetchTasks();
-    }
-  }, [session]);
 
   const handleSaveTask = async (taskData: Partial<Task>) => {
     const newTask: Task = {
@@ -103,16 +117,22 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
-        // Optimistic
-        setTasks(tasks.filter(t => t.id !== id));
-        try {
-            await db.deleteTask(id);
-        } catch (e) {
-            console.error("Failed to delete", e);
-        }
+  const handleDelete = (id: string) => {
+    setTaskToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!taskToDelete) return;
+    
+    // Optimistic
+    setTasks(tasks.filter(t => t.id !== taskToDelete));
+    try {
+        await db.deleteTask(taskToDelete);
+    } catch (e) {
+        console.error("Failed to delete", e);
     }
+    setTaskToDelete(null);
   };
 
   const renderContent = () => {
@@ -128,7 +148,15 @@ const App: React.FC = () => {
       return <Dashboard tasks={tasks} onStatusChange={handleStatusChange} onDelete={handleDelete} onNewTask={() => setCurrentView('add')} onViewAllTasks={() => setCurrentView('tasks')} />;
     }
     if (currentView === 'add') {
-      return <CreateTask onSave={handleSaveTask} onCancel={() => setCurrentView('dashboard')} />;
+      return (
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-64">
+            <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-900 rounded-full animate-spin"></div>
+          </div>
+        }>
+          <CreateTask onSave={handleSaveTask} onCancel={() => setCurrentView('dashboard')} />
+        </Suspense>
+      );
     }
     if (currentView === 'tasks') {
       return (
@@ -185,17 +213,33 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout 
-      currentView={currentView} 
-      setCurrentView={setCurrentView}
-      userEmail={session.user.email || ''}
-      onSignOut={() => {
-        setSession(null);
-        setTasks([]);
-      }}
-    >
-      {renderContent()}
-    </Layout>
+    <>
+      <Layout 
+        currentView={currentView} 
+        setCurrentView={setCurrentView}
+        userEmail={session.user.email || ''}
+        onSignOut={() => {
+          setSession(null);
+          setTasks([]);
+        }}
+      >
+        {renderContent()}
+      </Layout>
+      
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setTaskToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+    </>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, Priority } from '../types';
 import { TaskCard } from './TaskCard';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Sparkles, ArrowUpRight } from 'lucide-react';
 
 const MOTIVATIONAL_QUOTES = [
@@ -44,11 +43,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
   const urgentTasks = [...pendingTasks].sort((a, b) => 
     new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
   );
-
-  const data = [
-    { name: 'Pending', value: pendingTasks.length, color: '#18181b' }, // Zinc-900
-    { name: 'Completed', value: completedTasks.length, color: '#e4e4e7' }, // Zinc-200
-  ];
 
   const completionRate = tasks.length > 0 
     ? Math.round((completedTasks.length / tasks.length) * 100) 
@@ -99,30 +93,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, onStatusChange, onD
         <div className="col-span-1 md:col-span-4 bg-white rounded-3xl p-6 border border-primary-100 flex flex-col items-center justify-center relative overflow-hidden">
              <h3 className="absolute top-6 left-6 font-medium text-sm text-primary-400">Overview</h3>
              <div className="h-32 w-32 relative">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={55}
-                        startAngle={90}
-                        endAngle={-270}
-                        dataKey="value"
-                        stroke="none"
-                    >
-                        {data.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Pie>
-                    </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <span className="text-2xl font-bold text-primary-900">{tasks.length}</span>
-                    <span className="text-[10px] text-primary-400 uppercase tracking-wider">Total</span>
-                </div>
-            </div>
+                 <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                   <circle 
+                     cx="60" 
+                     cy="60" 
+                     r="50" 
+                     fill="none" 
+                     stroke="#e4e4e7" 
+                     strokeWidth="20"
+                   />
+                   <circle 
+                     cx="60" 
+                     cy="60" 
+                     r="50" 
+                     fill="none" 
+                     stroke="#18181b" 
+                     strokeWidth="20"
+                     strokeDasharray={`${completionRate * 3.14159} ${(100 - completionRate) * 3.14159}`}
+                     strokeLinecap="round"
+                   />
+                 </svg>
+                 <div className="absolute inset-0 flex items-center justify-center flex-col">
+                     <span className="text-2xl font-bold text-primary-900">{tasks.length}</span>
+                     <span className="text-[10px] text-primary-400 uppercase tracking-wider">Total</span>
+                 </div>
+             </div>
         </div>
 
         {/* Motivation Card */}
