@@ -82,7 +82,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
       <div className="w-full max-w-md animate-fade-in">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 bg-primary-900 rounded-3xl items-center justify-center text-white font-display font-bold text-3xl mb-4 shadow-lg shadow-primary-900/20 animate-bounce-in">
+          <div className="inline-flex w-16 h-16 bg-primary-900 rounded-3xl items-center justify-center text-white font-display font-bold text-3xl mb-4 shadow-lg shadow-primary-900/20">
             U
           </div>
           <h1 className="text-4xl font-display font-bold text-primary-900 mb-2">UniTrack Pro</h1>
@@ -90,7 +90,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8 animate-scale-in animation-delay-200">
+        <div className="bg-white rounded-3xl shadow-2xl border border-primary-100 p-8">
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => {
@@ -125,7 +125,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2 animate-slide-in-up">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-red-800">{error}</p>
               </div>
@@ -133,7 +133,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-start gap-2 animate-slide-in-up">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-start gap-2">
                 <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-green-800">{successMessage}</p>
               </div>
@@ -168,7 +168,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             </div>
 
             {isSignUp && (
-              <div className="animate-slide-in-up">
+              <div>
                 <label className="block text-sm font-semibold text-primary-700 mb-2">
                   Confirm Password
                 </label>

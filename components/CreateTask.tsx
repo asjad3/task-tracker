@@ -35,14 +35,14 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in">
+    <div className="max-w-4xl mx-auto">
       <button onClick={onCancel} className="flex items-center gap-2 text-primary-400 hover:text-primary-900 mb-8 transition-colors hover:-translate-x-1">
         <ArrowLeft className="w-4 h-4" />
         <span className="text-sm font-medium">Back to Dashboard</span>
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-8 animate-slide-in-left">
+        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-8">
           <div>
             <input 
                 required
@@ -54,7 +54,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6 animate-fade-in animation-delay-100">
+          <div className="grid grid-cols-2 gap-6">
             <div className="group">
                 <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider mb-2">Course Code</label>
                 <input 
@@ -78,7 +78,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
             </div>
           </div>
 
-          <div className="space-y-4 animate-fade-in animation-delay-200">
+          <div className="space-y-4">
              <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider">Description & Scope</label>
              <textarea 
                 value={description}
@@ -90,7 +90,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
           </div>
 
           {/* Subtasks List */}
-          <div className="bg-white rounded-3xl border border-primary-100 p-6 md:p-8 animate-scale-in animation-delay-300">
+          <div className="bg-white rounded-3xl border border-primary-100 p-6 md:p-8">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="font-display font-bold text-xl text-primary-900">Action Plan</h3>
                 <button type="button" onClick={() => addSubtask("New step")} className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-900 hover:bg-primary-100 transition-colors">
@@ -104,7 +104,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
                     </div>
                 )}
                 {subtasks.map((st, idx) => (
-                    <div key={st.id} className="flex items-center gap-4 group animate-slide-in-up">
+                    <div key={st.id} className="flex items-center gap-4 group">
                         <span className="text-xs font-mono text-primary-300 w-4">{idx + 1}.</span>
                         <input 
                             type="text" 
@@ -124,7 +124,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4 animate-fade-in animation-delay-300">
+          <div className="flex gap-4 pt-4">
              <button 
                 type="button" 
                 onClick={onCancel}
@@ -143,7 +143,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({ onSave, onCancel }) => {
 
         {/* Sidebar Settings */}
         <div className="space-y-8">
-            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4 animate-slide-in-right animation-delay-200">
+            <div className="bg-white rounded-3xl p-6 border border-primary-100 space-y-4">
                 <h3 className="font-display font-bold text-lg">Settings</h3>
                 <div>
                     <label className="block text-xs font-semibold text-primary-400 uppercase tracking-wider mb-2">Type</label>
