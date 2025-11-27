@@ -186,6 +186,7 @@ const App: React.FC = () => {
           }}
           onRefresh={loadData}
           onAddCourse={(course) => setCourses(prev => [...prev, course])}
+          onRemoveCourse={(courseId) => setCourses(prev => prev.filter(c => c.id !== courseId))}
         />
       );
     }

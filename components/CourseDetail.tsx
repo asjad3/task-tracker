@@ -43,7 +43,8 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
         const now = new Date().toISOString();
 
         if (currentNote.id) {
-            // Update - optimistic update
+            // Update - optimistic update with rollback
+            const originalNote = notes.find(n => n.id === currentNote.id);
             const updatedNote: Note = {
                 ...currentNote,
                 courseId: course.id,
@@ -57,9 +58,13 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
                 await db.updateNote(updatedNote);
             } catch (error) {
                 console.error('Failed to update note', error);
+                // Rollback on failure
+                if (originalNote) {
+                    setNotes(prev => prev.map(n => n.id === originalNote.id ? originalNote : n));
+                }
             }
         } else {
-            // Create - optimistic update
+            // Create - optimistic update with rollback
             const newNote: Note = {
                 id: uuidv4(),
                 courseId: course.id,
@@ -76,12 +81,17 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
                 await db.addNote(newNote);
             } catch (error) {
                 console.error('Failed to save note', error);
+                // Rollback on failure
+                setNotes(prev => prev.filter(n => n.id !== newNote.id));
             }
         }
     };
 
     const handleDeleteNote = async (id: string) => {
         if (!confirm('Are you sure you want to delete this note?')) return;
+        
+        // Save the note for potential rollback
+        const noteToDelete = notes.find(n => n.id === id);
         
         // Optimistic delete
         setNotes(prev => prev.filter(n => n.id !== id));
@@ -90,6 +100,10 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
             await db.deleteNote(id);
         } catch (error) {
             console.error('Failed to delete note', error);
+            // Rollback on failure
+            if (noteToDelete) {
+                setNotes(prev => [...prev, noteToDelete]);
+            }
         }
     };
 
