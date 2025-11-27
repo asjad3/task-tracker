@@ -134,7 +134,7 @@ const App: React.FC = () => {
       setTasks(prev => prev.filter(t => t.id !== newTask.id));
       // Also rollback newly created course if any
       if (newCourseAdded) {
-        setCourses(prev => prev.filter(c => c.id !== newCourseAdded!.id));
+        setCourses(prev => prev.filter(c => c.id !== newCourseAdded.id));
       }
       alert("Failed to save task. Please try again.");
     }
