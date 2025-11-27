@@ -100,7 +100,7 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, 
                         <div
                             key={course.id}
                             onClick={() => onCourseClick(course)}
-                            className="group bg-white p-6 rounded-3xl border border-primary-100 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-900/5 transition-all cursor-pointer"
+                            className="group bg-white p-6 rounded-3xl border border-primary-100 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-900/5 transition-all cursor-pointer relative"
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div
@@ -109,6 +109,17 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, 
                                 >
                                     {course.name.charAt(0).toUpperCase()}
                                 </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (confirm('Delete this course? All notes will be lost.')) {
+                                            db.deleteCourse(course.id).then(onRefresh).catch(err => alert('Failed to delete'));
+                                        }
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                                </button>
                             </div>
                             <h3 className="text-xl font-bold text-primary-900 mb-2 group-hover:text-primary-700 transition-colors">
                                 {course.name}

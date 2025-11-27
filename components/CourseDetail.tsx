@@ -7,12 +7,14 @@ import { TaskCard } from './TaskCard';
 interface CourseDetailProps {
     course: Course;
     onBack: () => void;
+    tasks: Task[];
+    onTaskUpdate: (id: string, status: TaskStatus) => void;
+    onTaskDelete: (id: string) => void;
 }
 
-export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) => {
+export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, tasks, onTaskUpdate, onTaskDelete }) => {
     const [activeTab, setActiveTab] = useState<'notes' | 'tasks'>('notes');
     const [notes, setNotes] = useState<Note[]>([]);
-    const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Note Editing State
@@ -20,23 +22,16 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) =>
     const [currentNote, setCurrentNote] = useState<Partial<Note>>({});
 
     useEffect(() => {
-        loadData();
+        loadNotes();
     }, [course.id]);
 
-    const loadData = async () => {
+    const loadNotes = async () => {
         setIsLoading(true);
         try {
-            const [fetchedNotes, fetchedTasks] = await Promise.all([
-                db.getNotes(course.id),
-                db.getTasks() // We fetch all and filter client side for now as getTasks doesn't support filtering by course yet
-            ]);
-
+            const fetchedNotes = await db.getNotes(course.id);
             setNotes(fetchedNotes);
-            // Filter tasks by course name (assuming course name matches)
-            // In a real app, we'd filter by ID, but current task schema uses course name string
-            setTasks(fetchedTasks.filter(t => t.course === course.name));
         } catch (error) {
-            console.error('Failed to load course data', error);
+            console.error('Failed to load notes', error);
         } finally {
             setIsLoading(false);
         }
@@ -63,7 +58,7 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) =>
             }
             setIsEditingNote(false);
             setCurrentNote({});
-            loadData();
+            loadNotes();
         } catch (error) {
             console.error('Failed to save note', error);
         }
@@ -73,27 +68,10 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) =>
         if (!confirm('Are you sure you want to delete this note?')) return;
         try {
             await db.deleteNote(id);
-            loadData();
+            loadNotes();
         } catch (error) {
             console.error('Failed to delete note', error);
         }
-    };
-
-    // Task handlers (simplified for this view)
-    const handleStatusChange = async (id: string, status: TaskStatus) => {
-        // Re-use logic from App.tsx or pass down handlers? 
-        // For simplicity, we'll just update local state and db
-        const task = tasks.find(t => t.id === id);
-        if (!task) return;
-        const updated = { ...task, status };
-        setTasks(tasks.map(t => t.id === id ? updated : t));
-        await db.updateTask(updated);
-    };
-
-    const handleDeleteTask = async (id: string) => {
-        if (!confirm('Delete task?')) return;
-        setTasks(tasks.filter(t => t.id !== id));
-        await db.deleteTask(id);
     };
 
     if (isLoading) {
@@ -229,8 +207,8 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack }) =>
                             <TaskCard
                                 key={task.id}
                                 task={task}
-                                onStatusChange={handleStatusChange}
-                                onDelete={handleDeleteTask}
+                                onStatusChange={onTaskUpdate}
+                                onDelete={onTaskDelete}
                             />
                         ))}
                         {tasks.length === 0 && (

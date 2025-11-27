@@ -1,4 +1,4 @@
-import { Task } from '../types';
+import { Task, Course, Note } from '../types';
 import { supabase } from './auth';
 
 // --- Data Operations ---
@@ -15,6 +15,7 @@ const getCurrentUser = async () => {
 };
 
 export const db = {
+  // --- Tasks ---
   async getTasks(): Promise<Task[]> {
     const user = await getCurrentUser();
 
@@ -36,9 +37,9 @@ export const db = {
       description: row.description,
       type: row.type,
       status: row.status,
-      dueDate: row.due_date,
       priority: row.priority,
       subtasks: row.subtasks || [],
+      dueDate: row.due_date,
       createdAt: row.created_at
     }));
   },
@@ -100,33 +101,70 @@ export const db = {
 
   // --- Courses ---
 
-  async getCourses(): Promise<any[]> {
+  async getCourses(): Promise<Course[]> {
     const user = await getCurrentUser();
     const { data, error } = await supabase
       .from('courses')
       .select('*')
       .eq('user_id', user.id)
-      .order('name');
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+
+    return data.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      color: c.color,
+      icon: c.icon,
+      createdAt: c.created_at
+    }));
   },
 
-  async addCourse(course: any): Promise<void> {
+  async addCourse(course: Course): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase.from('courses').insert([{
-      id: course.id,
-      user_id: user.id,
-      name: course.name,
-      color: course.color,
-      created_at: course.createdAt
-    }]);
+    const { error } = await supabase
+      .from('courses')
+      .insert([{
+        id: course.id,
+        user_id: user.id,
+        name: course.name,
+        color: course.color,
+        icon: course.icon,
+        created_at: course.createdAt
+      }]);
+
+    if (error) throw error;
+  },
+
+  async updateCourse(course: Course): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase
+      .from('courses')
+      .update({
+        name: course.name,
+        color: course.color,
+        icon: course.icon
+      })
+      .eq('id', course.id)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+  },
+
+  async deleteCourse(id: string): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase
+      .from('courses')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
     if (error) throw error;
   },
 
   // --- Notes ---
 
-  async getNotes(courseId: string): Promise<any[]> {
+  async getNotes(courseId: string): Promise<Note[]> {
     const user = await getCurrentUser();
     const { data, error } = await supabase
       .from('notes')
@@ -136,6 +174,7 @@ export const db = {
       .order('updated_at', { ascending: false });
 
     if (error) throw error;
+
     return data.map((n: any) => ({
       id: n.id,
       courseId: n.course_id,
@@ -146,7 +185,7 @@ export const db = {
     }));
   },
 
-  async addNote(note: any): Promise<void> {
+  async addNote(note: Note): Promise<void> {
     const user = await getCurrentUser();
     const { error } = await supabase.from('notes').insert([{
       id: note.id,
@@ -160,7 +199,7 @@ export const db = {
     if (error) throw error;
   },
 
-  async updateNote(note: any): Promise<void> {
+  async updateNote(note: Note): Promise<void> {
     const user = await getCurrentUser();
     const { error } = await supabase
       .from('notes')

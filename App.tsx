@@ -194,6 +194,9 @@ const App: React.FC = () => {
         <CourseDetail
           course={selectedCourse}
           onBack={() => setCurrentView('courses')}
+          tasks={tasks.filter(t => t.course === selectedCourse.name)}
+          onTaskUpdate={handleStatusChange}
+          onTaskDelete={handleDelete}
         />
       );
     }
