@@ -36,3 +36,20 @@ export interface Task {
   subtasks: SubTask[];
   createdAt: string;
 }
+
+export interface Course {
+  id: string;
+  name: string;
+  color: string;
+  icon?: string;
+  createdAt: string;
+}
+
+export interface Note {
+  id: string;
+  courseId: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}

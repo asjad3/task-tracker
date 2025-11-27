@@ -6,11 +6,11 @@ import { supabase } from './auth';
 // Helper function to get current authenticated user
 const getCurrentUser = async () => {
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) {
     throw new Error('User not authenticated');
   }
-  
+
   return user;
 };
 
@@ -23,12 +23,12 @@ export const db = {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       console.error('Supabase fetch error:', error);
       throw error;
     }
-    
+
     return data.map((row: any) => ({
       id: row.id,
       title: row.title,
@@ -61,7 +61,7 @@ export const db = {
         subtasks: task.subtasks,
         created_at: task.createdAt
       }]);
-      
+
     if (error) throw error;
   },
 
@@ -95,6 +95,88 @@ export const db = {
       .eq('id', id)
       .eq('user_id', user.id);
 
+    if (error) throw error;
+  },
+
+  // --- Courses ---
+
+  async getCourses(): Promise<any[]> {
+    const user = await getCurrentUser();
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('name');
+
+    if (error) throw error;
+    return data;
+  },
+
+  async addCourse(course: any): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase.from('courses').insert([{
+      id: course.id,
+      user_id: user.id,
+      name: course.name,
+      color: course.color,
+      created_at: course.createdAt
+    }]);
+    if (error) throw error;
+  },
+
+  // --- Notes ---
+
+  async getNotes(courseId: string): Promise<any[]> {
+    const user = await getCurrentUser();
+    const { data, error } = await supabase
+      .from('notes')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('course_id', courseId)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return data.map((n: any) => ({
+      id: n.id,
+      courseId: n.course_id,
+      title: n.title,
+      content: n.content,
+      createdAt: n.created_at,
+      updatedAt: n.updated_at
+    }));
+  },
+
+  async addNote(note: any): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase.from('notes').insert([{
+      id: note.id,
+      user_id: user.id,
+      course_id: note.courseId,
+      title: note.title,
+      content: note.content,
+      created_at: note.createdAt,
+      updated_at: note.updatedAt
+    }]);
+    if (error) throw error;
+  },
+
+  async updateNote(note: any): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase
+      .from('notes')
+      .update({
+        title: note.title,
+        content: note.content,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', note.id)
+      .eq('user_id', user.id);
+    if (error) throw error;
+  },
+
+  async deleteNote(id: string): Promise<void> {
+    const user = await getCurrentUser();
+    const { error } = await supabase.from('notes').delete().eq('id', id).eq('user_id', user.id);
     if (error) throw error;
   }
 };

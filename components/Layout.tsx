@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Plus, List, LogOut, User } from 'lucide-react';
+import { LayoutGrid, Plus, List, LogOut, User, BookOpen } from 'lucide-react';
 import { authService } from '../services/auth';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -13,9 +13,10 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurrentView, userEmail, onSignOut }) => {
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
-  
+
   const navItems = [
     { id: 'dashboard', icon: LayoutGrid, label: 'Overview' },
+    { id: 'courses', icon: BookOpen, label: 'Courses' },
     { id: 'tasks', icon: List, label: 'Tasks' },
     { id: 'add', icon: Plus, label: 'Create' },
   ];
@@ -49,11 +50,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
             <button
               key={item.id}
               onClick={() => setCurrentView(item.id)}
-              className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 rounded-2xl transition-all duration-300 ease-out group ${
-                currentView === item.id
+              className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 rounded-2xl transition-all duration-300 ease-out group ${currentView === item.id
                   ? 'bg-primary-900 text-white shadow-lg shadow-primary-900/10'
                   : 'text-primary-400 hover:bg-primary-50 hover:text-primary-900'
-              }`}
+                }`}
             >
               <item.icon className={`w-5 h-5 ${currentView === item.id ? 'text-white' : ''}`} />
               <span className="hidden lg:block font-medium text-sm">{item.label}</span>
@@ -63,31 +63,31 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
 
         <div className="p-4 border-t border-primary-50 space-y-2">
           <div className="hidden lg:flex items-center gap-2 px-3 py-2 mb-2 bg-primary-50 rounded-xl">
-             <User className="w-4 h-4 text-primary-600" />
-             <span className="text-[10px] text-primary-600 font-medium truncate flex-1">
-                {userEmail}
-             </span>
+            <User className="w-4 h-4 text-primary-600" />
+            <span className="text-[10px] text-primary-600 font-medium truncate flex-1">
+              {userEmail}
+            </span>
           </div>
-          
-          <button 
-            onClick={handleSignOutClick} 
+
+          <button
+            onClick={handleSignOutClick}
             className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-2 text-primary-400 hover:text-red-600 rounded-xl hover:bg-red-50 text-xs transition-colors"
           >
-             <LogOut className="w-4 h-4" />
-             <span className="hidden lg:block">Sign Out</span>
+            <LogOut className="w-4 h-4" />
+            <span className="hidden lg:block">Sign Out</span>
           </button>
         </div>
       </aside>
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-surface/80 backdrop-blur-lg border-b border-primary-100 p-4 flex items-center justify-between z-40">
-         <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-900 rounded-full flex items-center justify-center text-white font-display font-bold">U</div>
-            <span className="font-display font-bold text-lg">UniTrack</span>
-         </div>
-         <button onClick={handleSignOutClick} className="p-2 text-primary-500 hover:text-red-600">
-            <LogOut className="w-5 h-5" />
-         </button>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-primary-900 rounded-full flex items-center justify-center text-white font-display font-bold">U</div>
+          <span className="font-display font-bold text-lg">UniTrack</span>
+        </div>
+        <button onClick={handleSignOutClick} className="p-2 text-primary-500 hover:text-red-600">
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Main Content */}
@@ -103,15 +103,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setCurren
           <button
             key={item.id}
             onClick={() => setCurrentView(item.id)}
-            className={`p-3 rounded-full transition-all duration-200 active:scale-90 ${
-              currentView === item.id ? 'bg-white/20 scale-110' : 'text-white/60'
-            }`}
+            className={`p-3 rounded-full transition-all duration-200 active:scale-90 ${currentView === item.id ? 'bg-white/20 scale-110' : 'text-white/60'
+              }`}
           >
             <item.icon className="w-5 h-5" />
           </button>
         ))}
       </div>
-      
+
       <ConfirmModal
         isOpen={signOutModalOpen}
         onClose={() => setSignOutModalOpen(false)}
