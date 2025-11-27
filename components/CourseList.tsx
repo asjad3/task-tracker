@@ -131,10 +131,23 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, 
                                     {course.name.charAt(0).toUpperCase()}
                                 </div>
                                 <button
-                                    onClick={(e) => {
+                                    onClick={async (e) => {
                                         e.stopPropagation();
                                         if (confirm('Delete this course? All notes will be lost.')) {
-                                            db.deleteCourse(course.id).then(onRefresh).catch(err => alert('Failed to delete'));
+                                            // Optimistic delete
+                                            if (onRemoveCourse) {
+                                                onRemoveCourse(course.id);
+                                            }
+                                            try {
+                                                await db.deleteCourse(course.id);
+                                            } catch (err) {
+                                                console.error('Failed to delete course', err);
+                                                // Rollback on failure
+                                                if (onAddCourse) {
+                                                    onAddCourse(course);
+                                                }
+                                                alert('Failed to delete course. Please try again.');
+                                            }
                                         }
                                     }}
                                     className="opacity-0 group-hover:opacity-100 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"

@@ -62,6 +62,7 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
                 if (originalNote) {
                     setNotes(prev => prev.map(n => n.id === originalNote.id ? originalNote : n));
                 }
+                alert('Failed to update note. Please try again.');
             }
         } else {
             // Create - optimistic update with rollback
@@ -83,6 +84,7 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
                 console.error('Failed to save note', error);
                 // Rollback on failure
                 setNotes(prev => prev.filter(n => n.id !== newNote.id));
+                alert('Failed to save note. Please try again.');
             }
         }
     };
@@ -104,6 +106,7 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
             if (noteToDelete) {
                 setNotes(prev => [...prev, noteToDelete]);
             }
+            alert('Failed to delete note. Please try again.');
         }
     };
 

@@ -83,6 +83,7 @@ const App: React.FC = () => {
 
   const handleSaveTask = async (taskData: Partial<Task>) => {
     let courseName = taskData.course!;
+    let newCourseAdded: Course | null = null;
 
     // Check if course exists, if not create it
     const existingCourse = courses.find(c => c.name.toLowerCase() === courseName.toLowerCase());
@@ -97,11 +98,15 @@ const App: React.FC = () => {
 
       // Optimistic update for course
       setCourses(prev => [...prev, newCourse]);
+      newCourseAdded = newCourse;
 
       try {
         await db.addCourse(newCourse);
       } catch (e) {
         console.error("Failed to auto-create course", e);
+        // Rollback course on failure
+        setCourses(prev => prev.filter(c => c.id !== newCourse.id));
+        newCourseAdded = null;
       }
     }
 
@@ -125,7 +130,13 @@ const App: React.FC = () => {
       await db.addTask(newTask);
     } catch (e) {
       console.error("Failed to save task", e);
-      alert("Failed to save to cloud.");
+      // Rollback task on failure
+      setTasks(prev => prev.filter(t => t.id !== newTask.id));
+      // Also rollback newly created course if any
+      if (newCourseAdded) {
+        setCourses(prev => prev.filter(c => c.id !== newCourseAdded!.id));
+      }
+      alert("Failed to save task. Please try again.");
     }
   };
 
@@ -133,6 +144,7 @@ const App: React.FC = () => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
 
+    const previousStatus = task.status;
     const updatedTask = { ...task, status };
     setTasks(tasks.map(t => t.id === id ? updatedTask : t));
 
@@ -140,6 +152,9 @@ const App: React.FC = () => {
       await db.updateTask(updatedTask);
     } catch (e) {
       console.error("Failed to update task", e);
+      // Rollback on failure
+      setTasks(prev => prev.map(t => t.id === id ? { ...t, status: previousStatus } : t));
+      alert("Failed to update task. Please try again.");
     }
   };
 
@@ -151,11 +166,19 @@ const App: React.FC = () => {
   const confirmDelete = async () => {
     if (!taskToDelete) return;
 
+    // Store task for potential rollback
+    const taskBeingDeleted = tasks.find(t => t.id === taskToDelete);
+    
     setTasks(tasks.filter(t => t.id !== taskToDelete));
     try {
       await db.deleteTask(taskToDelete);
     } catch (e) {
       console.error("Failed to delete", e);
+      // Rollback on failure
+      if (taskBeingDeleted) {
+        setTasks(prev => [...prev, taskBeingDeleted]);
+      }
+      alert("Failed to delete task. Please try again.");
     }
     setTaskToDelete(null);
   };
