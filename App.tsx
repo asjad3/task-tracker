@@ -185,6 +185,8 @@ const App: React.FC = () => {
             setCurrentView('course-detail');
           }}
           onRefresh={loadData}
+          onAddCourse={(course) => setCourses(prev => [...prev, course])}
+          onRemoveCourse={(courseId) => setCourses(prev => prev.filter(c => c.id !== courseId))}
         />
       );
     }

@@ -7,9 +7,11 @@ interface CourseListProps {
     courses: Course[];
     onCourseClick: (course: Course) => void;
     onRefresh: () => void;
+    onAddCourse?: (course: Course) => void;
+    onRemoveCourse?: (courseId: string) => void;
 }
 
-export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, onRefresh }) => {
+export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, onRefresh, onAddCourse, onRemoveCourse }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [newCourseName, setNewCourseName] = useState('');
     const [newCourseColor, setNewCourseColor] = useState('#3B82F6'); // Default blue
@@ -25,14 +27,33 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, 
             createdAt: new Date().toISOString(),
         };
 
-        try {
-            await db.addCourse(newCourse);
+        // Optimistic update if callback provided
+        if (onAddCourse) {
+            onAddCourse(newCourse);
             setNewCourseName('');
             setIsAdding(false);
-            onRefresh();
-        } catch (error: any) {
-            console.error('Failed to add course', error);
-            alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
+
+            try {
+                await db.addCourse(newCourse);
+            } catch (error: any) {
+                console.error('Failed to add course', error);
+                // Rollback on failure
+                if (onRemoveCourse) {
+                    onRemoveCourse(newCourse.id);
+                }
+                alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
+            }
+        } else {
+            // Fallback to original behavior
+            try {
+                await db.addCourse(newCourse);
+                setNewCourseName('');
+                setIsAdding(false);
+                onRefresh();
+            } catch (error: any) {
+                console.error('Failed to add course', error);
+                alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
+            }
         }
     };
 

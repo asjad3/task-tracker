@@ -1,16 +1,30 @@
 import { Task, Course, Note } from '../types';
 import { supabase } from './auth';
+import { User } from '@supabase/supabase-js';
 
 // --- Data Operations ---
 
-// Helper function to get current authenticated user
+// Cached user to avoid redundant auth calls
+let cachedUser: User | null = null;
+
+// Listen to auth state changes to keep cache in sync
+supabase.auth.onAuthStateChange((_event, session) => {
+  cachedUser = session?.user ?? null;
+});
+
+// Helper function to get current authenticated user (uses cache when available)
 const getCurrentUser = async () => {
+  if (cachedUser) {
+    return cachedUser;
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     throw new Error('User not authenticated');
   }
 
+  cachedUser = user;
   return user;
 };
 

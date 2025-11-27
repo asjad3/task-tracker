@@ -40,37 +40,70 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
     const handleSaveNote = async () => {
         if (!currentNote.title || !currentNote.content) return;
 
-        try {
-            if (currentNote.id) {
-                // Update
-                await db.updateNote({ ...currentNote, courseId: course.id } as Note);
-            } else {
-                // Create
-                const newNote: Note = {
-                    id: uuidv4(),
-                    courseId: course.id,
-                    title: currentNote.title,
-                    content: currentNote.content,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                };
-                await db.addNote(newNote);
-            }
+        const now = new Date().toISOString();
+
+        if (currentNote.id) {
+            // Update - optimistic update with rollback
+            const originalNote = notes.find(n => n.id === currentNote.id);
+            const updatedNote: Note = {
+                ...currentNote,
+                courseId: course.id,
+                updatedAt: now,
+            } as Note;
+            setNotes(prev => prev.map(n => n.id === updatedNote.id ? updatedNote : n));
             setIsEditingNote(false);
             setCurrentNote({});
-            loadNotes();
-        } catch (error) {
-            console.error('Failed to save note', error);
+
+            try {
+                await db.updateNote(updatedNote);
+            } catch (error) {
+                console.error('Failed to update note', error);
+                // Rollback on failure
+                if (originalNote) {
+                    setNotes(prev => prev.map(n => n.id === originalNote.id ? originalNote : n));
+                }
+            }
+        } else {
+            // Create - optimistic update with rollback
+            const newNote: Note = {
+                id: uuidv4(),
+                courseId: course.id,
+                title: currentNote.title,
+                content: currentNote.content,
+                createdAt: now,
+                updatedAt: now,
+            };
+            setNotes(prev => [newNote, ...prev]);
+            setIsEditingNote(false);
+            setCurrentNote({});
+
+            try {
+                await db.addNote(newNote);
+            } catch (error) {
+                console.error('Failed to save note', error);
+                // Rollback on failure
+                setNotes(prev => prev.filter(n => n.id !== newNote.id));
+            }
         }
     };
 
     const handleDeleteNote = async (id: string) => {
         if (!confirm('Are you sure you want to delete this note?')) return;
+        
+        // Save the note for potential rollback
+        const noteToDelete = notes.find(n => n.id === id);
+        
+        // Optimistic delete
+        setNotes(prev => prev.filter(n => n.id !== id));
+        
         try {
             await db.deleteNote(id);
-            loadNotes();
         } catch (error) {
             console.error('Failed to delete note', error);
+            // Rollback on failure
+            if (noteToDelete) {
+                setNotes(prev => [...prev, noteToDelete]);
+            }
         }
     };
 
