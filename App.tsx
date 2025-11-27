@@ -185,6 +185,7 @@ const App: React.FC = () => {
             setCurrentView('course-detail');
           }}
           onRefresh={loadData}
+          onAddCourse={(course) => setCourses(prev => [...prev, course])}
         />
       );
     }
