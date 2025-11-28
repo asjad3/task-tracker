@@ -109,13 +109,19 @@ export const db = {
   async deleteTask(id: string): Promise<void> {
     const user = await getCurrentUser();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('tasks')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
+    
+    // Verify the delete actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error(`Failed to delete task ${id} - task not found or not authorized`);
+    }
   },
 
   // --- Courses ---
@@ -184,13 +190,19 @@ export const db = {
 
   async deleteCourse(id: string): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('courses')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
+    
+    // Verify the delete actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error(`Failed to delete course ${id} - course not found or not authorized`);
+    }
   },
 
   // --- Notes ---
@@ -259,7 +271,18 @@ export const db = {
 
   async deleteNote(id: string): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase.from('notes').delete().eq('id', id).eq('user_id', user.id);
+    const { data, error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select();
+    
     if (error) throw error;
+    
+    // Verify the delete actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error(`Failed to delete note ${id} - note not found or not authorized`);
+    }
   }
 };
