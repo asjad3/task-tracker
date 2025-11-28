@@ -4,27 +4,20 @@ import { User } from '@supabase/supabase-js';
 
 // --- Data Operations ---
 
-// Cached user to avoid redundant auth calls
-let cachedUser: User | null = null;
+// Helper function to get current authenticated user
+// Always fetches fresh user data to avoid stale session issues
+const getCurrentUser = async (): Promise<User> => {
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-// Listen to auth state changes to keep cache in sync
-supabase.auth.onAuthStateChange((_event, session) => {
-  cachedUser = session?.user ?? null;
-});
-
-// Helper function to get current authenticated user (uses cache when available)
-const getCurrentUser = async () => {
-  if (cachedUser) {
-    return cachedUser;
+  if (error) {
+    console.error('Auth error getting user:', error);
+    throw new Error(`Authentication error: ${error.message}`);
   }
-
-  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     throw new Error('User not authenticated');
   }
 
-  cachedUser = user;
   return user;
 };
 
@@ -61,7 +54,7 @@ export const db = {
   async addTask(task: Task): Promise<void> {
     const user = await getCurrentUser();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('tasks')
       .insert([{
         id: task.id,
@@ -75,15 +68,21 @@ export const db = {
         due_date: task.dueDate,
         subtasks: task.subtasks,
         created_at: task.createdAt
-      }]);
+      }])
+      .select();
 
     if (error) throw error;
+    
+    // Verify the insert actually succeeded (RLS might silently reject)
+    if (!data || data.length === 0) {
+      throw new Error('Failed to save task - no data returned');
+    }
   },
 
   async updateTask(task: Task): Promise<void> {
     const user = await getCurrentUser();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('tasks')
       .update({
         title: task.title,
@@ -96,9 +95,15 @@ export const db = {
         subtasks: task.subtasks
       })
       .eq('id', task.id)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
+    
+    // Verify the update actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error('Failed to update task - task not found or not authorized');
+    }
   },
 
   async deleteTask(id: string): Promise<void> {
@@ -136,7 +141,7 @@ export const db = {
 
   async addCourse(course: Course): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('courses')
       .insert([{
         id: course.id,
@@ -145,14 +150,20 @@ export const db = {
         color: course.color,
         icon: course.icon,
         created_at: course.createdAt
-      }]);
+      }])
+      .select();
 
     if (error) throw error;
+    
+    // Verify the insert actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error('Failed to save course - no data returned');
+    }
   },
 
   async updateCourse(course: Course): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('courses')
       .update({
         name: course.name,
@@ -160,9 +171,15 @@ export const db = {
         icon: course.icon
       })
       .eq('id', course.id)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
+    
+    // Verify the update actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error('Failed to update course - course not found or not authorized');
+    }
   },
 
   async deleteCourse(id: string): Promise<void> {
@@ -201,7 +218,7 @@ export const db = {
 
   async addNote(note: Note): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase.from('notes').insert([{
+    const { data, error } = await supabase.from('notes').insert([{
       id: note.id,
       user_id: user.id,
       course_id: note.courseId,
@@ -209,13 +226,19 @@ export const db = {
       content: note.content,
       created_at: note.createdAt,
       updated_at: note.updatedAt
-    }]);
+    }]).select();
+    
     if (error) throw error;
+    
+    // Verify the insert actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error('Failed to save note - no data returned');
+    }
   },
 
   async updateNote(note: Note): Promise<void> {
     const user = await getCurrentUser();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('notes')
       .update({
         title: note.title,
@@ -223,8 +246,15 @@ export const db = {
         updated_at: new Date().toISOString()
       })
       .eq('id', note.id)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
+    
     if (error) throw error;
+    
+    // Verify the update actually succeeded
+    if (!data || data.length === 0) {
+      throw new Error('Failed to update note - note not found or not authorized');
+    }
   },
 
   async deleteNote(id: string): Promise<void> {
