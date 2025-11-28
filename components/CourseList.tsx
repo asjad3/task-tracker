@@ -27,33 +27,18 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, onCourseClick, 
             createdAt: new Date().toISOString(),
         };
 
-        // Optimistic update if callback provided
-        if (onAddCourse) {
-            onAddCourse(newCourse);
+        try {
+            // Save to database FIRST
+            await db.addCourse(newCourse);
+            // Only update UI after successful database save
+            if (onAddCourse) {
+                onAddCourse(newCourse);
+            }
             setNewCourseName('');
             setIsAdding(false);
-
-            try {
-                await db.addCourse(newCourse);
-            } catch (error: any) {
-                console.error('Failed to add course', error);
-                // Rollback on failure
-                if (onRemoveCourse) {
-                    onRemoveCourse(newCourse.id);
-                }
-                alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
-            }
-        } else {
-            // Fallback to original behavior
-            try {
-                await db.addCourse(newCourse);
-                setNewCourseName('');
-                setIsAdding(false);
-                onRefresh();
-            } catch (error: any) {
-                console.error('Failed to add course', error);
-                alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
-            }
+        } catch (error: any) {
+            console.error('Failed to add course', error);
+            alert(`Failed to add course: ${error.message || error.error_description || 'Unknown error'}`);
         }
     };
 
