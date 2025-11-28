@@ -75,7 +75,7 @@ export const db = {
     
     // Verify the insert actually succeeded (RLS might silently reject)
     if (!data || data.length === 0) {
-      throw new Error('Failed to save task - no data returned');
+      throw new Error(`Failed to save task ${task.id} - no data returned`);
     }
   },
 
@@ -102,7 +102,7 @@ export const db = {
     
     // Verify the update actually succeeded
     if (!data || data.length === 0) {
-      throw new Error('Failed to update task - task not found or not authorized');
+      throw new Error(`Failed to update task ${task.id} - task not found or not authorized`);
     }
   },
 
@@ -157,7 +157,7 @@ export const db = {
     
     // Verify the insert actually succeeded
     if (!data || data.length === 0) {
-      throw new Error('Failed to save course - no data returned');
+      throw new Error(`Failed to save course ${course.id} - no data returned`);
     }
   },
 
@@ -178,7 +178,7 @@ export const db = {
     
     // Verify the update actually succeeded
     if (!data || data.length === 0) {
-      throw new Error('Failed to update course - course not found or not authorized');
+      throw new Error(`Failed to update course ${course.id} - course not found or not authorized`);
     }
   },
 
@@ -232,7 +232,7 @@ export const db = {
     
     // Verify the insert actually succeeded
     if (!data || data.length === 0) {
-      throw new Error('Failed to save note - no data returned');
+      throw new Error(`Failed to save note ${note.id} - no data returned`);
     }
   },
 
@@ -253,7 +253,7 @@ export const db = {
     
     // Verify the update actually succeeded
     if (!data || data.length === 0) {
-      throw new Error('Failed to update note - note not found or not authorized');
+      throw new Error(`Failed to update note ${note.id} - note not found or not authorized`);
     }
   },
 
