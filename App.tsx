@@ -96,17 +96,16 @@ const App: React.FC = () => {
         createdAt: new Date().toISOString(),
       };
 
-      // Optimistic update for course
-      setCourses(prev => [...prev, newCourse]);
-      newCourseAdded = newCourse;
-
       try {
+        // Save course to database FIRST
         await db.addCourse(newCourse);
+        // Only update UI after successful database save
+        setCourses(prev => [...prev, newCourse]);
+        newCourseAdded = newCourse;
       } catch (e) {
         console.error("Failed to auto-create course", e);
-        // Rollback course on failure
-        setCourses(prev => prev.filter(c => c.id !== newCourse.id));
-        newCourseAdded = null;
+        alert("Failed to create course. Please try again.");
+        return; // Exit early if course creation fails
       }
     }
 
@@ -123,18 +122,23 @@ const App: React.FC = () => {
       createdAt: new Date().toISOString(),
     };
 
-    setTasks(prev => [...prev, newTask]);
-    setCurrentView('dashboard');
-
     try {
+      // Save to database FIRST, before updating UI
       await db.addTask(newTask);
+      // Only update UI after successful database save
+      setTasks(prev => [...prev, newTask]);
+      setCurrentView('dashboard');
     } catch (e) {
       console.error("Failed to save task", e);
-      // Rollback task on failure
-      setTasks(prev => prev.filter(t => t.id !== newTask.id));
-      // Also rollback newly created course if any
+      // Rollback newly created course if any (since task failed)
       if (newCourseAdded) {
         setCourses(prev => prev.filter(c => c.id !== newCourseAdded.id));
+        // Also try to delete the course from the database
+        try {
+          await db.deleteCourse(newCourseAdded.id);
+        } catch (deleteError) {
+          console.error("Failed to rollback course", deleteError);
+        }
       }
       alert("Failed to save task. Please try again.");
     }

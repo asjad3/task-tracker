@@ -43,29 +43,27 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
         const now = new Date().toISOString();
 
         if (currentNote.id) {
-            // Update - optimistic update with rollback
+            // Update existing note
             const originalNote = notes.find(n => n.id === currentNote.id);
             const updatedNote: Note = {
                 ...currentNote,
                 courseId: course.id,
                 updatedAt: now,
             } as Note;
-            setNotes(prev => prev.map(n => n.id === updatedNote.id ? updatedNote : n));
-            setIsEditingNote(false);
-            setCurrentNote({});
 
             try {
+                // Save to database FIRST
                 await db.updateNote(updatedNote);
+                // Only update UI after successful database save
+                setNotes(prev => prev.map(n => n.id === updatedNote.id ? updatedNote : n));
+                setIsEditingNote(false);
+                setCurrentNote({});
             } catch (error) {
                 console.error('Failed to update note', error);
-                // Rollback on failure
-                if (originalNote) {
-                    setNotes(prev => prev.map(n => n.id === originalNote.id ? originalNote : n));
-                }
                 alert('Failed to update note. Please try again.');
             }
         } else {
-            // Create - optimistic update with rollback
+            // Create new note
             const newNote: Note = {
                 id: uuidv4(),
                 courseId: course.id,
@@ -74,16 +72,16 @@ export const CourseDetail: React.FC<CourseDetailProps> = ({ course, onBack, task
                 createdAt: now,
                 updatedAt: now,
             };
-            setNotes(prev => [newNote, ...prev]);
-            setIsEditingNote(false);
-            setCurrentNote({});
 
             try {
+                // Save to database FIRST
                 await db.addNote(newNote);
+                // Only update UI after successful database save
+                setNotes(prev => [newNote, ...prev]);
+                setIsEditingNote(false);
+                setCurrentNote({});
             } catch (error) {
                 console.error('Failed to save note', error);
-                // Rollback on failure
-                setNotes(prev => prev.filter(n => n.id !== newNote.id));
                 alert('Failed to save note. Please try again.');
             }
         }
